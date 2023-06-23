@@ -49,17 +49,19 @@ async def dc(interaction: Interaction):
 
 @bot.slash_command()
 async def start_record(ctx: discord.ApplicationContext):
-
+    while True:
     # コマンドを使用したユーザーのボイスチャンネルに接続
-    try:
-        await ctx.respond("録音開始...")
-    except AttributeError:
-        await ctx.respond("ボイスチャンネルに入ってください。")
-        return
+        try:
+            ctx.voice_client.start_recording(discord.sinks.MP3Sink(), finished_callback, ctx)
+            await ctx.respond("録音開始...")
+            await asyncio.sleep(30)
+            ctx.voice_client.stop_recording()
+        except AttributeError:
+            await ctx.respond("ボイスチャンネルに入ってください。")
+            return
 
     # 録音開始。mp3で帰ってくる。wavだとなぜか壊れる。
-    ctx.voice_client.start_recording(
-        discord.sinks.MP3Sink(), finished_callback, ctx)
+
 
 
 @bot.slash_command()
