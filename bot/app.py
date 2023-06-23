@@ -10,7 +10,7 @@ bot = discord.Bot(intents=intents)
 
 Token = ""
 
-model = whisper.load_model("medium.en")
+model = whisper.load_model("medium")
 
 
 def get_voice_client(channel_id: int) -> discord.VoiceClient | None:
@@ -75,16 +75,21 @@ async def getTransacription(user_id: int):
     user = await bot.fetch_user(user_id)
     display_name = user.display_name
     result = model.transcribe(str(user_id) + ".wav")
-    print(display_name, result["text"])
+    return display_name, result["text"]
 
 
 async def finished_callback(sink: discord.sinks.MP3Sink, ctx: discord.ApplicationContext):
+    msg = ""
     # 録音したユーザーの音声を取り出す
     for user_id, audio in sink.audio_data.items():
         # mp3ファイルとして書き込み。その後wavファイルに変換。
         song = AudioSegment.from_file(audio.file, format="mp3")
         song.export(f"./{user_id}.wav", format='wav')
-        await getTransacription(user_id)
+        trans = await getTransacription(user_id)
+        msg += trans[0] + ":" + trans[1] + '\n'
+    print(msg)
+    # メッセージを送る
+    await ctx.respond(msg)
 
 
 async def main():
