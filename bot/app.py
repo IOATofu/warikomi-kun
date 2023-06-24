@@ -99,7 +99,7 @@ async def finished_callback(sink: discord.sinks.MP3Sink, ctx: discord.Applicatio
         song = AudioSegment.from_file(audio.file, format="mp3")
         song.export(f"./{user_id}.mp3", format='mp3')
         trans = await getTransacription(user_id)
-        msg += ctx.author.display_name +  ":" + trans[1] + '\n'
+        msg += trans[0] +  ":" + trans[1] + '\n'
         if ctx.channel_id in connecting_channels:
             chat :Chat = connecting_channels[ctx.channel_id]
             chat.add(msg,Role.user)
