@@ -52,7 +52,7 @@ async def dc(interaction: discord.Interaction):
         if interaction.channel_id in connecting_channels:
             chat:Chat = connecting_channels[interaction.channel_id]
             history=chat.make_log()
-            with open("log.txt","w") as f:
+            with open("log.txt","w",encoding='utf8') as f:
                 for msg in history:
                     f.write(msg["content"]+"\n")
             await interaction.followup.send(file=discord.File("log.txt"))
@@ -91,7 +91,7 @@ async def stop_recording(ctx: discord.ApplicationContext):
 async def getTransacription(filename: str):
     user = await bot.fetch_user(int(filename.split("_")[0]))
     display_name = user.display_name
-    result = model.transcribe(filename)
+    result = model.transcribe(filename, language='ja')
     return display_name, result["text"]
 
 
@@ -104,10 +104,11 @@ async def finished_callback(sink: discord.sinks.MP3Sink, ctx: discord.Applicatio
         filename = f"{user_id}_{time.time()}.mp3"
         song.export(filename, format='mp3')
         trans = await getTransacription(filename)
+        os.remove(filename)
         msg += trans[0] +  ":" + trans[1] + '\n'
-        if ctx.channel_id in connecting_channels:
-            chat :Chat = connecting_channels[ctx.channel_id]
-            chat.add(msg,Role.user)
+    if ctx.channel_id in connecting_channels:
+        chat :Chat = connecting_channels[ctx.channel_id]
+        chat.add(msg,Role.user)
     print(msg)
     if msg=="":
         msg = "誰も喋ってないよ"
