@@ -5,6 +5,7 @@ import asyncio
 import os
 from dotenv import load_dotenv
 from  chatgpt import Role, Message, Chat
+import time
 
 load_dotenv()
 
@@ -65,16 +66,15 @@ async def dc(interaction: discord.Interaction):
 @bot.slash_command()
 async def start_record(ctx: discord.ApplicationContext):
     await ctx.respond("録音開始...")
-    while True:
     # コマンドを使用したユーザーのボイスチャンネルに接続
-        try:
-            ctx.voice_client.start_recording(discord.sinks.MP3Sink(), finished_callback, ctx)
-            await asyncio.sleep(30)
-            ctx.voice_client.stop_recording()
+    try:
+        ctx.voice_client.start_recording(discord.sinks.MP3Sink(), finished_callback, ctx)
+        await asyncio.sleep(10)
+        ctx.voice_client.stop_recording()
             
-        except AttributeError:
-            await ctx.respond("ボイスチャンネルに入ってください。")
-            return
+    except AttributeError:
+        await ctx.respond("ボイスチャンネルに入ってください。")
+        return
 
 
 
@@ -87,10 +87,10 @@ async def stop_recording(ctx: discord.ApplicationContext):
 
 # 録音終了時に呼び出される関数
 
-async def getTransacription(user_id: int):
-    user = await bot.fetch_user(user_id)
+async def getTransacription(filename: str):
+    user = await bot.fetch_user(int(filename.split("_")[0]))
     display_name = user.display_name
-    result = model.transcribe(str(user_id) + ".mp3")
+    result = model.transcribe(filename)
     return display_name, result["text"]
 
 
@@ -100,8 +100,9 @@ async def finished_callback(sink: discord.sinks.MP3Sink, ctx: discord.Applicatio
     for user_id, audio in sink.audio_data.items():
         # mp3ファイルとして書き込み。その後wavファイルに変換。
         song = AudioSegment.from_file(audio.file, format="mp3")
-        song.export(f"./{user_id}.mp3", format='mp3')
-        trans = await getTransacription(user_id)
+        filename = f"{user_id}_{time.time()}.mp3"
+        song.export(filename, format='mp3')
+        trans = await getTransacription(filename)
         msg += trans[0] +  ":" + trans[1] + '\n'
         if ctx.channel_id in connecting_channels:
             chat :Chat = connecting_channels[ctx.channel_id]
@@ -110,8 +111,8 @@ async def finished_callback(sink: discord.sinks.MP3Sink, ctx: discord.Applicatio
     if msg=="":
         msg = "誰も喋ってないよ"
     # メッセージを送る
-    
     await ctx.respond(msg)
+    ctx.voice_client.start_recording(discord.sinks.MP3Sink(), finished_callback, ctx)
 
 
 @bot.command(name="now", description="現在のチャットの要点を整理するよ")
