@@ -3,12 +3,16 @@ from pydub import AudioSegment
 from discord import Embed, Interaction, ui
 import whisper
 import asyncio
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 intents = discord.Intents().all()
 connecting_channels = set()
 bot = discord.Bot(intents=intents)
 
-Token = ""
+Token = os.getenv("DISCORD_TOKEN")
 
 model = whisper.load_model("medium")
 
