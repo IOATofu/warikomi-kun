@@ -24,6 +24,9 @@ def get_voice_client(channel_id: int) -> discord.VoiceClient | None:
     else:
         return None
 
+@bot.event
+async def on_ready():
+    print('connected')
 
 @bot.slash_command(name="join", description="ボイスチャンネルに参加するよ")
 async def join(interaction: discord.Interaction):
