@@ -1,0 +1,8 @@
+discord
+"pycord[voice]"
+pydub 
+python-dotenv
+whisper
+openai-whisper
+tiktoken
+```
