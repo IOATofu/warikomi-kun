@@ -52,7 +52,8 @@ async def dc(interaction: discord.Interaction):
             chat:Chat = connecting_channels[interaction.channel_id]
             history=chat.make_log()
             with open("log.txt","w") as f:
-                f.write(history)
+                for msg in history:
+                    f.write(msg["content"]+"\n")
             await interaction.followup.send(file=discord.File("log.txt"))
 
             del connecting_channels[interaction.channel_id]
