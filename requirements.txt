@@ -1,7 +1,8 @@
 discord
--e pip install git+https://github.com/Pycord-Development/pycord
+"pycord[voice]"
 pydub 
 python-dotenv
 whisper
-openai
+openai-whisper
+tiktoken
 ```
