@@ -76,7 +76,7 @@ async def stop_recording(ctx: discord.ApplicationContext):
 async def getTransacription(user_id: int):
     user = await bot.fetch_user(user_id)
     display_name = user.display_name
-    result = model.transcribe(str(user_id) + ".wav")
+    result = model.transcribe(str(user_id) + ".mp3")
     return display_name, result["text"]
 
 
@@ -86,7 +86,7 @@ async def finished_callback(sink: discord.sinks.MP3Sink, ctx: discord.Applicatio
     for user_id, audio in sink.audio_data.items():
         # mp3ファイルとして書き込み。その後wavファイルに変換。
         song = AudioSegment.from_file(audio.file, format="mp3")
-        song.export(f"./{user_id}.wav", format='wav')
+        song.export(f"./{user_id}.mp3", format='mp3')
         trans = await getTransacription(user_id)
         msg += trans[0] + ":" + trans[1] + '\n'
     print(msg)
