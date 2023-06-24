@@ -1,0 +1,7 @@
+discord
+-e pip install git+https://github.com/Pycord-Development/pycord
+pydub 
+python-dotenv
+whisper
+openai
+```
